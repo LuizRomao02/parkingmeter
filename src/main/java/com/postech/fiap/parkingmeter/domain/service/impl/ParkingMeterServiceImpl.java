@@ -118,15 +118,14 @@ public class ParkingMeterServiceImpl implements ParkingMeterService {
 
      Aggregation aggregation = Aggregation.newAggregation(
              Aggregation.match(Criteria.where("horario_inicio").gte(startDate).lte(endDate)),
-             Aggregation.group("parquimetro")
+             Aggregation.group("parquimetro._id")
+                     .first("parquimetro").as("parquimetro")
                      .sum("valor_total_cobrado").as("totalArrecadado"),
              Aggregation.sort(Sort.by(Sort.Direction.DESC, "totalArrecadado")),
-             Aggregation.limit(1),
-             Aggregation.lookup("parkingMeter", "_id", "id", "parquimetroDetails")
+             Aggregation.limit(1L)
      );
 
      AggregationResults<ParkingMeterArrecadacaoDTO> results = mongoTemplate.aggregate(aggregation, "ticket", ParkingMeterArrecadacaoDTO.class);
-
      return results.getMappedResults();
   }
 
